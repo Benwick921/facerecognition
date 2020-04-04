@@ -12,12 +12,12 @@ import matplotlib.pyplot as plt
 
 threshold = 42.0
 
-#datasetpath = "./480x600/"
-#gallerypath = "./480x600probes/"
-#impostorspath = "./480x600impostors/"
-datasetpath = './datasets/dataset1/180x200/'
-gallerypath = './datasets/dataset1/180x200probes/'
-impostorspath = './datasets/dataset1/180x200impostors/'
+datasetpath = "./datasets/dataset2/480x600/"
+gallerypath = "./datasets/dataset2/480x600probes/"
+impostorspath = "./datasets/dataset2/480x600impostors/"
+#datasetpath = './datasets/dataset1/180x200/'
+#gallerypath = './datasets/dataset1/180x200probes/'
+#impostorspath = './datasets/dataset1/180x200impostors/'
 
 haarcascade = './haarcascades/haarcascade_frontalface_alt.xml'
 datasetfaces = []
