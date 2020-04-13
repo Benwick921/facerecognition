@@ -12,7 +12,7 @@ sudo apt-get install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavform
 #[optional]
 sudo apt-get install python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev
 ```
-The official guide tell to install `libjasper-dev` library but it gave me error, `apt` couldent loce the file so i didn't installed and worked fine anyway.
+The official guide tell to install `libjasper-dev` library but it gave me error, `apt` couldn't loce the file so i didn't installed and worked fine anyway.
 ## PIP3
 Install `pip3` to install python libraries because it's written in python3.
 ``` bash
