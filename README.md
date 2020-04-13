@@ -29,5 +29,5 @@ sudo pip3 install opencv-contrib-python
 ## Conclusions
 Now you are ready to go:
 - Download and extract the project.
-- Populate the datasets that are inside `datasets` folder.
+- Populate the datasets that are inside `datasets` folder, remember to enable your change dataset paths, the default one is set to `./datasets/dataset1/...`.
 - Execute `python3 cv.py` and enjoy the evaluation.
