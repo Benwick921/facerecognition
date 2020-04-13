@@ -26,7 +26,7 @@ Install also contrib libraries, you might need it better have it just in case.
 ``` bash
 sudo pip3 install opencv-contrib-python 
 ```
-## Conclusions
+## Conclusion
 Now you are ready to go:
 - Download and extract the project.
 - Populate the datasets that are inside `datasets` folder, remember to enable your change dataset paths, the default one is set to `./datasets/dataset1/...`.<br/>
