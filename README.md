@@ -29,5 +29,8 @@ sudo pip3 install opencv-contrib-python
 ## Conclusions
 Now you are ready to go:
 - Download and extract the project.
-- Populate the datasets that are inside `datasets` folder, remember to enable your change dataset paths, the default one is set to `./datasets/dataset1/...`.
+- Populate the datasets that are inside `datasets` folder, remember to enable your change dataset paths, the default one is set to `./datasets/dataset1/...`.<br/>
+![Default dataset](./DefaultDataset.PNG)
+- Change the number of genuine probes and impostor probes in the code.
+![Probes number](./DefaultDataset.PNG)
 - Execute `python3 cv.py` and enjoy the evaluation.
