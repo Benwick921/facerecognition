@@ -32,5 +32,6 @@ Now you are ready to go:
 - Populate the datasets that are inside `datasets` folder, remember to enable your change dataset paths, the default one is set to `./datasets/dataset1/...`.<br/>
 ![Default dataset](./DefaultDataset.PNG)
 - Change the number of genuine probes and impostor probes in the code.<br/>
-![Probes number](./ProbesNumber.PNG)
+![Probes number](./ProbesNumber.PNG)<br/>
+Yes i know `totgalleryimg` is not the right name for genuine probes variable but hey! now you know it that the variable stand for the quantity of genuine probes so change it as u wish.
 - Execute `python3 cv.py` and enjoy the evaluation.
