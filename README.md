@@ -1,8 +1,7 @@
 # Face Recognition Evaluation
 Performance evaluation of a biometric facial recognition system.
 The datasets image are fewer from the original evaluation, feel free to populate your datasets with your images but befor that read the report.
-![img](./Screen1.JPG)
-<img src="./Screen1.JPG" width="818" height="522">
+![img](./Screen1.PNG)
 # OpenCV Intallation
 ## Dependencies
 ```bash
