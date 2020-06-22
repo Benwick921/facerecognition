@@ -10,7 +10,7 @@ import math
 import sys
 import matplotlib.pyplot as plt
 
-threshold = 42.0
+threshold = 140
 
 #datasetpath = "./datasets/dataset2/480x600/"
 #gallerypath = "./datasets/dataset2/480x600probes/"
@@ -31,7 +31,7 @@ face_cascade = cv2.CascadeClassifier(haarcascade)
 facerecognizer = cv2.face.LBPHFaceRecognizer_create()
 totdbimg = 0
 totimpostors = 0
-totgalleryimg = 4
+totgalleryimg = 4 
 totimpostorsimg = 4
 dataset = []
 gallery = []
@@ -234,6 +234,15 @@ def printconfig():
     print('\tInteractive mode: '+str(interactive))
     print(bcolors.ENDC)
 
+def plotsrr(ratio, density):
+    xassis = []
+    for i in range(len(ratio)):
+        xassis.append(i+1)
+    plt.plot(xassis, ratio, label='ratio')
+    plt.plot(xassis, density, label='density')
+    plt.legend()
+    plt.show()
+
 def plotcms(prob, ratio, k):
     xaxxis = []
     for i in range(k):
@@ -243,6 +252,60 @@ def plotcms(prob, ratio, k):
     plt.legend()
     plt.show()
 
+def srr(facerecognizer):
+    print(bcolors.OKBLUE+'Calculating SRR (System Response Reliability), may take several minutes.'+bcolors.ENDC)
+    c = 0
+    srrnofaces = []
+    matrix = []
+    #matric probes x gallery
+    for root, dirs, files in os.walk(gallerypath):
+        for f in files: #for each probes
+            confidences = []
+            probe = ''
+            for ro, di, fi in os.walk(datasetpath):
+                minconf = 140
+                probe = ''
+                for ff in fi: #for each img in dataset
+                    probe = ff
+                    face = cv2.imread(ro+'/'+ff)
+                    face = detect_face(face)
+                    printProgressBar(c+1 , (totdbimg-totgalleryimg-totimpostors)*totgalleryimg, prefix = 'SRR:', suffix = 'Complete', length = 70)
+                    c+=1
+                    if face is not None:
+                        facerecognizer.train([face, face], np.array([1, 2]))
+                        label, confidence = topMatch(root+'/'+f,facerecognizer)
+                        if confidence < minconf:
+                            minconf = confidence
+                    else:
+                        srrnoface.append(ro+'/'+ff)
+                confidences.append((probe, minconf))
+            confidences.sort(key=lambda tup:tup[1])
+            matrix.append((f,confidences))
+    if log:
+        print(bcolors.FAIL+'Not recognized faces: '+bcolors.ENDC)
+        for i in srrnofaces:
+            print(bcolors.FAIL+i+bcolors.ENDC)
+    print(bcolors.WARNING+'Density ratio is more reliable!'+bcolors.ENDC)
+    ratios = []
+    densities = []
+    
+    for m in matrix:
+        
+        ratio = (m[1][1][1]-m[1][0][1])/m[1][-1][1]
+        ratios.append(ratio)
+        if log:
+            print('probe: '+ m[0])
+            print('Relative distance: '+str(ratio))
+        c = 0
+        for i in m[1]:
+            if i[1] < m[1][0][1]*2:
+                c+=1
+        density = c/(len(m[1])-1)
+        densities.append(density)
+        if log:
+            print('Density ratio: '+str(density))
+            print()
+    plotsrr(ratios, densities)
 
 def cms(facerecognizer):
     print(bcolors.OKBLUE+'Calculating CMS (Cumulative Match Score), may take several minutes.'+bcolors.ENDC)
@@ -360,33 +423,36 @@ def plotgraph(vfrr, vfar):
         xfrr.append(float(i[1]))
         yfrr.append(float(i[0]))
     
-    plt.plot(xfrr, yfrr, label = 'frr')
-    plt.plot(xfar, yfar, label = 'far')
+    plt.plot(xfrr, yfrr, label = 'far')
+    plt.plot(xfar, yfar, label = 'frr')
     plt.legend()
     plt.show()
 
 def frrfar():
     global threshold
+    global totgalleryimg
+    global totimpostorsimg
     print('Searching the best threshold...')
-    if totgalleryimg != totimpostorsimg:
-        print(bcolors.FAIL+'Genuine and impostors have to be the same number!'+bcolors.ENDC)
-        exit(0)
-    maxt = 140
-    mint = 0
-    maxtry = 10
-    frr = 0
+    frr = 1
     far = 0
     fase = 1
     vfrr = set()
     vfar = set()
-    #m, nm, val = check(True)
-    while frr != far or  maxtry > 0:
-        resetgallery()
-        creategallery(datasetpath)
-        creategallery(impostorspath)
-        train(dataset, facerecognizer, 'Fase '+str(fase)+'/10')
+    mindiff = 100
+    t = 100
+    equals = []
+    totgalleryimg = random.randint(1, 8) 
+    totimpostorsimg = random.randint(1, 8)
+    print("Genuine:", totgalleryimg, 'Impostors', totimpostorsimg)
+    resetgallery()
+    creategallery(datasetpath)
+    creategallery(impostorspath)
+    train(dataset, facerecognizer, 'Training:')
+    while threshold > 0: #or  maxtry > 0:  
+        printProgressBar(fase, 140, prefix='Loading:', suffix='Complete', length=70)
+        frr = 0
+        far = 0
         m, nm, val = check(False, True)
-        threshold = math.ceil((maxt+mint)/2)
         for i in val:
             if i[1] is None:
                 continue # sometimes a confidence is None have no idea why
@@ -396,18 +462,21 @@ def frrfar():
                 far+=1
         frr/=totgalleryimg
         far/=totimpostorsimg
-        if frr > far:
-            mint = threshold
-        elif far > frr:
-            maxt = threshold
         fase+=1
-        maxtry-=1
         vfrr.add((frr, threshold))
         vfar.add((far, threshold))
         if log:
             print('Threshold:', threshold, 'FRR:', frr, 'FAR:', far, 'Equal?:', frr==far)
-        frr = 0
-        far = 0
+        if frr == far:
+            equals.append(threshold)
+        threshold-=1
+        if abs(frr - far) < mindiff:
+            mindiff = abs(frr - far)
+            t = threshold
+    if len(equals) > 0:
+        threshold = sum(equals) / len(equals)
+    else:
+        threshold = t
     print(bcolors.OKBLUE+'Threshold set to: '+str(threshold)+bcolors.ENDC)
     
     vfrr = list(vfrr)
@@ -415,14 +484,15 @@ def frrfar():
     vfrr.sort(key=lambda tup:tup[1])
     vfar.sort(key=lambda tup:tup[1])
     plotgraph(vfar, vfrr)
-    return frr == far
+    return frr == far 
+
 
 
 if  __name__ == '__main__': 
     
     for cmd in sys.argv:
         cmdlinearguments(cmd)
-    print('===== Face recognition V2 =====')
+    print('===== Face recognition (verification) =====')
     print(bcolors.HEADER+'DESCLAIMER: Photos of people for the test are taken from a free and open database:\nhttps://cswww.essex.ac.uk/mv/allfaces/index.html'+bcolors.ENDC)
     print('Initialinzing...')
     
@@ -470,10 +540,13 @@ if  __name__ == '__main__':
     if interactive:
         input('Calculate CMS >')
     cms(facerecognizer)
-
+    '''if interactive: #i think its used in verification and not in identification
+        input('Calculate SRR >')
+        srr(facerecognizer)'''
     if interactive:
         input('Calculate threshold >')
-    frrfar()
+    frrfar()   
+
     opt = -1
     while True:
         count = 0
